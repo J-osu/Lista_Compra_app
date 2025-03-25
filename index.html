@@ -1,103 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Lista de la Compra</title>
- <style>
- body {
- font-family: Arial, sans-serif;
- display: flex;
- flex-direction: column;
- align-items: center;
- margin-top: 50px;
- }
- ul {
- list-style: none;
- padding: 0;
- }
- li {
- padding: 10px;
- background: #f3f3f3;
- margin: 5px 0;
- border-radius: 5px;
- display: flex;
- justify-content: space-between;
- width: 300px;
- }
- button {
- cursor: pointer;
- background: red;
- color: white;
- border: none;
- padding: 5px;
- border-radius: 3px;
- }
- </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de la Compra</title>
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+        }
+        ul {
+        list-style: none;
+        padding: 0;
+        }
+        li {
+        padding: 10px;
+        background: #f3f3f3;
+        margin: 5px 0;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        width: 300px;
+        }
+        button {
+        cursor: pointer;
+        background: red;
+        color: white;
+        border: none;
+        padding: 5px;
+        border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
- <h1>Lista de la Compra</h1>
- <input type="text" id="itemInput" placeholder="Añadir producto">
- <button onclick="agregarItem()">Añadir</button>
- <ul id="lista"></ul>
+    <h1>Lista de la Compra</h1>
+    <input type="text" id="itemInput" placeholder="Añadir producto">
+    <button onclick="agregarItem()">Añadir</button>
+    <ul id="lista"></ul>
 
- <script>
- const lista = document.getElementById("lista");
- const itemInput = document.getElementById("itemInput");
- // Cargar la lista desde el servidor
- function cargarLista() {
- return new Promise((resolve, reject) => {
- fetch("http://localhost:3000/items")
- .then(response => response.json())
- .then(data => {
- lista.innerHTML = ""; // Limpiar la lista antes de
-renderizar
- data.items.forEach(item => renderizarItem(item));
- resolve();
- })
- .catch(error => reject("Error al cargar la lista"));
- });
- }
- // Agregar un nuevo item
- function agregarItem() {
- const item = itemInput.value.trim();
- if (!item) return;
- itemInput.value = "";
- return new Promise((resolve, reject) => {
- fetch("http://localhost:3000/items", {
- method: "POST",
- headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ descripcion: item })
- })
- .then(response => response.json())
- .then(data => {
- renderizarItem(data);
- resolve();
- })
- .catch(error => reject("Error al agregar item"));
- });
- }
- // Renderizar un item en la lista
- function renderizarItem(item) {
- const li = document.createElement("li");
- li.innerHTML = `${item.descripcion} <button
-onclick="eliminarItem(${item.id}, this)">X</button>`;
- lista.appendChild(li);
- }
- // Eliminar un item
- function eliminarItem(id, boton) {
- return new Promise((resolve, reject) => {
- fetch(`http://localhost:3000/items/${id}`, { method: "DELETE" })
- .then(response => response.json())
- .then(() => {
- boton.parentElement.remove();
- resolve();
- })
- .catch(error => reject("Error al eliminar item"));
- });
- }
- // Cargar la lista al iniciar
- cargarLista().catch(error => console.error(error));
- </script>
+    <script>
+        const lista = document.getElementById("lista");
+        const itemInput = document.getElementById("itemInput");
+        // Cargar la lista desde el servidor
+        function cargarLista() {
+            return new Promise((resolve, reject) => {
+                fetch("http://localhost:3000/items")
+                .then(response => response.json())
+                .then(data => {
+                    lista.innerHTML = ""; // Limpiar la lista antes de
+                    renderizar
+                    data.items.forEach(item => renderizarItem(item));
+                    resolve();
+                })
+                .catch(error => reject("Error al cargar la lista"));
+            });
+        }
+        // Agregar un nuevo item
+        function agregarItem() {
+            const item = itemInput.value.trim();
+            if (!item) return;
+            itemInput.value = "";
+            return new Promise((resolve, reject) => {
+                fetch("http://localhost:3000/items", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ descripcion: item })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    renderizarItem(data);
+                    resolve();
+                })
+                .catch(error => reject("Error al agregar item"));
+            });
+        }
+        // Renderizar un item en la lista
+        function renderizarItem(item) {
+            const li = document.createElement("li");
+            li.innerHTML = `${item.descripcion} <button
+            onclick="eliminarItem(${item.id}, this)">X</button>`;
+            lista.appendChild(li);
+        }
+        // Eliminar un item
+        function eliminarItem(id, boton) {
+            return new Promise((resolve, reject) => {
+                fetch(`http://localhost:3000/items/${id}`, { method: "DELETE" })
+                .then(response => response.json())
+                .then(() => {
+                    boton.parentElement.remove();
+                    resolve();
+                })
+                .catch(error => reject("Error al eliminar item"));
+            });
+        }
+        // Cargar la lista al iniciar
+        cargarLista().catch(error => console.error(error)); 
+    </script>
 </body>
 </html>
