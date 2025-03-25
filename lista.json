@@ -1,4 +1,20 @@
 {
-    "items": []
+  "items": [
+    {
+      "id": 1742891586062,
+      "descripcion": "pan"
+    },
+    {
+      "id": 1742891597488,
+      "descripcion": "leche"
+    },
+    {
+      "id": 1742891643815,
+      "descripcion": "uvas"
+    },
+    {
+      "id": 1742892131009,
+      "descripcion": "helado"
+    }
+  ]
 }
-    
