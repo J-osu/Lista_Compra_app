@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listas de Compra</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="listas-container">
+            <h2>Mis Listas</h2>
+            <div class="crear-lista">
+                <input type="text" id="nombreLista" placeholder="Nombre de la lista">
+                <button onclick="crearLista()">Crear Lista</button>
+            </div>
+            <ul id="listas"></ul>
+        </div>
+
+        <div class="lista-container">
+            <h1 id="titulo-lista">Selecciona una lista</h1>
+            <div id="contenido-lista" style="display: none;">
+                <div class="agregar-item">
+                    <input type="text" id="itemInput" placeholder="Añadir producto">
+                    <input type="number" id="cantidadInput" placeholder="Cantidad" min="1" value="1">
+                    <button onclick="agregarProducto()">Añadir</button>
+                </div>
+                <ul id="lista-items"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let listaActualId = null;
+
+        // Cargar las listas al iniciar
+        document.addEventListener('DOMContentLoaded', cargarListas);
+
+        // Función para cargar todas las listas
+        function cargarListas() {
+            fetch("http://localhost:3000/listas")
+                .then(response => response.json())
+                .then(listas => {
+                    const listasUl = document.getElementById("listas");
+                    listasUl.innerHTML = "";
+                    
+                    listas.forEach(lista => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `
+                            <span onclick="cargarLista(${lista.id})">${lista.nombre}</span>
+                            <button onclick="eliminarLista(${lista.id}, event)">X</button>
+                        `;
+                        listasUl.appendChild(li);
+                    });
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Función para crear una nueva lista
+        function crearLista() {
+            const nombre = document.getElementById("nombreLista").value.trim();
+            if (!nombre) return;
+
+            fetch("http://localhost:3000/listas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre })
+            })
+            .then(response => response.json())
+            .then(nuevaLista => {
+                document.getElementById("nombreLista").value = "";
+                cargarListas();
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Función para cargar una lista específica
+        function cargarLista(id) {
+            listaActualId = id;
+            const contenidoLista = document.getElementById("contenido-lista");
+            contenidoLista.style.display = "block";
+
+            fetch(`http://localhost:3000/listas/${id}`)
+                .then(response => response.json())
+                .then(lista => {
+                    document.getElementById("titulo-lista").textContent = lista.nombre;
+                    const listaItemsUl = document.getElementById("lista-items");
+                    listaItemsUl.innerHTML = "";
+                    
+                    lista.productos.forEach(producto => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `
+                            <span>${producto.nombre} (${producto.cantidad || 1})</span>
+                            <button onclick="eliminarProducto(${producto.id}, event)">X</button>
+                        `;
+                        listaItemsUl.appendChild(li);
+                    });
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Función para agregar un producto a la lista actual
+        function agregarProducto() {
+            if (!listaActualId) return;
+            
+            const nombre = document.getElementById("itemInput").value.trim();
+            const cantidad = parseInt(document.getElementById("cantidadInput").value) || 1;
+            if (!nombre) return;
+
+            fetch(`http://localhost:3000/listas/${listaActualId}/productos`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre, cantidad })
+            })
+            .then(response => response.json())
+            .then(() => {
+                document.getElementById("itemInput").value = "";
+                document.getElementById("cantidadInput").value = "1";
+                cargarLista(listaActualId);
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Función para eliminar una lista
+        function eliminarLista(id, event) {
+            event.stopPropagation();
+            if (confirm("¿Estás seguro de que quieres eliminar esta lista?")) {
+                fetch(`http://localhost:3000/listas/${id}`, {
+                    method: "DELETE"
+                })
+                .then(() => {
+                    if (listaActualId === id) {
+                        listaActualId = null;
+                        document.getElementById("contenido-lista").style.display = "none";
+                        document.getElementById("titulo-lista").textContent = "Selecciona una lista";
+                    }
+                    cargarListas();
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+
+        // Función para eliminar un producto
+        function eliminarProducto(productoId, event) {
+            event.stopPropagation();
+            fetch(`http://localhost:3000/listas/${listaActualId}/productos/${productoId}`, {
+                method: "DELETE"
+            })
+            .then(() => cargarLista(listaActualId))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

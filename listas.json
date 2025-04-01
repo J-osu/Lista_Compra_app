@@ -1,0 +1,11 @@
+{
+    "listas": [
+      {
+        "id": 1,
+        "nombre": "Supermercado",
+        "productos": [
+          { "id": 1, "nombre": "Leche", "cantidad": 2, "precio": 1.5 }
+        ]
+      }
+    ]
+}
