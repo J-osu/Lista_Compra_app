@@ -1,0 +1,15 @@
+{
+  "listas": [
+    {
+      "id": 1743495266659,
+      "nombre": "algo",
+      "productos": [
+        {
+          "id": 1743495291790,
+          "nombre": "pan+",
+          "cantidad": 1
+        }
+      ]
+    }
+  ]
+}
